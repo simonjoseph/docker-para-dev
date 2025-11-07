@@ -1,0 +1,35 @@
+FROM node:22.8.0-slim
+
+RUN apt update && \
+    apt install -y curl && \
+    npm install -g nodemon
+
+# criar user não rootpara debian
+# RUN useradd -m -u 1000 xpto -> criar user
+# RUN usermod -u 1000 node -> modificar user
+
+# criar user não root para alpine
+# RUN user add -D -u 1000 node -> criar user
+# RUN sed -i 's/1000/1001/g' /etc/passwd -> modificar user
+
+COPY start.sh ./
+RUN chmod +x start.sh
+
+USER node
+
+WORKDIR /home/node/app
+
+COPY package.json ./
+RUN npm install
+
+EXPOSE 3000
+
+# CMD VS ENTRYPOINT
+# 1. CMD -> comando default que pode ser sobrescrito na hora de rodar o container
+# 2. ENTRYPOINT -> comando fixo que não pode ser sobrescrito na hora de rodar o container
+# CMD ["tail", "-f", "/dev/null"]
+# ENTRYPOINT [ "node", "-v" ]
+
+# CMD ["sh", "-c", "npm install && tail -f /dev/null"]
+
+CMD ["/start.sh"]
