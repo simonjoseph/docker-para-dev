@@ -3,5 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+    # command: ["executable", "arg"] -> this line was replaced with entrypoint
+    # entrypoint: ["executable", "arg"] -> this line was added
     volumes:
       - .:/home/node/app
