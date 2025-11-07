@@ -1,6 +1,8 @@
 services:
   web:
     build:
+      args:
+        - NODEMON_VERSION=${NODEMON_VERSION:-3.1.7}
       context: .
       dockerfile: Dockerfile.dev
     # command: ["executable", "arg"] -> this line was replaced with entrypoint
@@ -9,9 +11,26 @@ services:
       - .:/home/node/app
     ports:
       - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+        # restart: true
+
   
   db:
     image: mysql:8.0.30-debian
+    # Poderia usar um envfile para mais dinamismo
+    # restart: on-failure=5
+    # restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: my_database
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s # interval - com que frequência o healthcheck é executado
+      timeout: 5s # timeout - tempo máximo para o healthcheck responder
+      retries: 5 # retries - número de tentativas antes de considerar o serviço como unhealthy
+      start_period: 10s # start_period - tempo de espera antes de iniciar as verificações de saúde
+      # Ou seja, o healthcheck será executado a cada 30 segundos, com um timeout de 5 segundos, 5 tentativas e um tempo de espera inicial de 10 segundos.

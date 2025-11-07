@@ -14,7 +14,7 @@ app.get('/external-api', async(req, res) => {
     res.json(data);
 });
 
-app.get('test-db', async(req, res) => {
+app.get('/test-db', async(req, res) => {
     const mysql = require('mysql2');
     const connection = mysql.createConnection({
         host: process.env.DB_HOST,
