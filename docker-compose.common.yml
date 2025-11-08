@@ -1,0 +1,24 @@
+services:
+  web:
+    build:
+      args:
+        - NODEMON_VERSION=${NODEMON_VERSION:-3.1.7}
+      context: .
+      dockerfile: Dockerfile.dev
+    # command: ["executable", "arg"] -> this line was replaced with entrypoint
+    # entrypoint: ["executable", "arg"] -> this line was added
+    volumes:
+      - .:/home/node/app
+    # ports:
+    #   - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+        # restart: true
+    # networks:
+    #   - external-api_default
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
