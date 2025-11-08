@@ -18,12 +18,14 @@ services:
       service: web
     ports:
       - "3001:3000"
+    profiles: [nginx]
     depends_on:
       db:
         condition: service_healthy
 
   nginx:
     image: nginx:1.19.10-alpine
+    profiles: [nginx]
     restart: always
     ports:
       - "4000:80"
@@ -48,6 +50,21 @@ services:
     # networks:
     #   - external-api_default
     
+  phpmyadmin:
+    image: phpmyadmin:5.2.1-apache
+    profiles: [debug]
+    # profiles:
+    #   - debug
+    environment:
+      - PMA_HOST=db
+      - PMA_PORT=3306
+      - PMA_USER=root
+      - PMA_PASSWORD=root
+    ports:
+      - "8080:80"
+    depends_on:
+      db:
+        condition: service_healthy
   
 # networks:
 #   external-api_default:
@@ -59,3 +76,6 @@ services:
 # Windows (C:\Windows\System32\drivers\etc\hosts)
 
 # 127.0.0.1 host.docker.internal
+
+#rodar o profile
+#docker compose -f docker-compose.dev.yml --profile debug up
