@@ -17,9 +17,11 @@ services:
       db:
         condition: service_healthy
         # restart: true
-    networks:
-      - external-api_default
+    # networks:
+    #   - external-api_default
 
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   
   db:
     image: mysql:8.0.30-debian
@@ -36,9 +38,17 @@ services:
       retries: 5 # retries - número de tentativas antes de considerar o serviço como unhealthy
       start_period: 10s # start_period - tempo de espera antes de iniciar as verificações de saúde
       # Ou seja, o healthcheck será executado a cada 30 segundos, com um timeout de 5 segundos, 5 tentativas e um tempo de espera inicial de 10 segundos.
-    networks:
-      - external-api_default
+    # networks:
+    #   - external-api_default
+    
   
-networks:
-  external-api_default:
-    external: true
+# networks:
+#   external-api_default:
+#     external: true
+
+# Para host.docker.internal funcionar no Linux e no mac
+#mac ou lnux (/etc/hosts)
+
+# Windows (C:\Windows\System32\drivers\etc\hosts)
+
+# 127.0.0.1 host.docker.internal
