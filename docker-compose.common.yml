@@ -22,3 +22,5 @@ services:
 
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
+    # O mysql poderia vir para o common se fosse usado em todos os ambientes
