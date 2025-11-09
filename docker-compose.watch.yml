@@ -1,0 +1,89 @@
+include:
+  - ./external-api/docker-compose.external-api.yml
+
+services:
+  web1:
+    extends:
+      file: docker-compose.common.yml
+      service: web
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+  
+  web2:
+    extends:
+      file: docker-compose.common.yml
+      service: web
+    ports:
+      - "3001:3000"
+    profiles: [nginx]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  nginx:
+    build: ./.docker/nginx
+    profiles: [nginx]
+    restart: always
+    ports:
+      - "4000:80"
+    # volumes:
+      # - ./.docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+    develop:
+      watch:
+        - action: sync+restart
+          x-initialSync: true
+          path: ./.docker/nginx/nginx.conf
+          target: /etc/nginx/nginx.conf
+
+  db:
+    image: mysql:8.0.30-debian
+    # Poderia usar um envfile para mais dinamismo
+    # restart: on-failure=5
+    # restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: my_database
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s # interval - com que frequência o healthcheck é executado
+      timeout: 5s # timeout - tempo máximo para o healthcheck responder
+      retries: 5 # retries - número de tentativas antes de considerar o serviço como unhealthy
+      start_period: 10s # start_period - tempo de espera antes de iniciar as verificações de saúde
+      # Ou seja, o healthcheck será executado a cada 30 segundos, com um timeout de 5 segundos, 5 tentativas e um tempo de espera inicial de 10 segundos.
+    # networks:
+    #   - external-api_default
+    
+  phpmyadmin:
+    image: phpmyadmin:5.2.1-apache
+    profiles: [debug]
+    # profiles:
+    #   - debug
+    environment:
+      - PMA_HOST=db
+      - PMA_PORT=3306
+      - PMA_USER=root
+      - PMA_PASSWORD=root
+    ports:
+      - "8080:80"
+    depends_on:
+      db:
+        condition: service_healthy
+  
+# networks:
+#   external-api_default:
+#     external: true
+
+# Para host.docker.internal funcionar no Linux e no mac
+#mac ou lnux (/etc/hosts)
+
+# Windows (C:\Windows\System32\drivers\etc\hosts)
+
+# 127.0.0.1 host.docker.internal
+
+#rodar o profile
+#docker compose -f docker-compose.dev.yml --profile debug up
+
+# $ docker compose -f docker-compose.watch.yml --profile nginx  up --watch
