@@ -1,0 +1,16 @@
+services:
+  app:
+    build: .
+    command: npm run start:dev
+    restart: always
+    ports:
+      - "3000:3000"
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /home/node/app
+        
+        # para uma situação que você já roda o projeto o rebuild vale a pena, mas usando um tail -f /dev/null, pode não ser necessário, pois o container não precisa reiniciar
+        - action: rebuild
+          path: ./package.json
