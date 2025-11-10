@@ -79,3 +79,6 @@ services:
 
 #rodar o profile
 #docker compose -f docker-compose.dev.yml --profile debug up
+
+#
+#docker compose -f docker-compose.dev.yml -p myprojectname up
